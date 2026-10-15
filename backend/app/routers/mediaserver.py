@@ -405,17 +405,19 @@ async def _passwort_identitaet(
     return server, anbieter_token, konto
 
 
-@router.post("/login/password", response_model=LoginResult)
-async def login_password(
-    payload: PasswortAnmeldung, request: Request, response: Response, db: DbSession
-) -> LoginResult:
-    """Mit Benutzername und Passwort des Medienservers bei Nexview anmelden."""
+async def passwort_benutzer(
+    payload: PasswortAnmeldung, request: Request, db: DbSession
+) -> User:
+    """Authenticate through a linked media server and resolve the Nexview account.
+
+    Kept separate from the HTTP session format so the Moonfin compatibility
+    adapter can issue its Seerr-shaped cookie without duplicating account
+    linking, blocklist, auto-import, rate-limit, or library-access policy.
+    """
     settings = settings_service.load_settings(db)
     _server, anbieter_token, konto = await _passwort_identitaet(db, payload, request)
 
     try:
-        # Dieselbe Stelle wie beim Code-Weg: Hier sitzen die Sperrliste, das
-        # automatische Anlegen und die Zuordnung zu einer offenen Einladung.
         benutzer = konten.resolve(db, settings, konto)
     except KontoFehler as exc:
         raise _fehler(exc) from exc
@@ -423,6 +425,15 @@ async def login_password(
     konten.link(benutzer, konto, encrypt(anbieter_token))
     benutzer.last_login_at = utcnow()
     db.commit()
+    return benutzer
+
+
+@router.post("/login/password", response_model=LoginResult)
+async def login_password(
+    payload: PasswortAnmeldung, request: Request, response: Response, db: DbSession
+) -> LoginResult:
+    """Mit Benutzername und Passwort des Medienservers bei Nexview anmelden."""
+    benutzer = await passwort_benutzer(payload, request, db)
 
     # Das Erneuerungs-Token wandert als Cookie mit dieser Antwort hinaus, nicht
     # im Koerper - eine Anmeldung ueber den Medienserver ist am Ende dieselbe

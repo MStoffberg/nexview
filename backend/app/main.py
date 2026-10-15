@@ -110,6 +110,9 @@ from .routers import (
     requests as requests_router,
 )
 from .routers import (
+    seerr_compat as seerr_compat_router,
+)
+from .routers import (
     settings as settings_router,
 )
 from .routers import (
@@ -352,6 +355,10 @@ app.include_router(beschaffung_router.instanzen_router)
 # nicht am Handler.
 app.include_router(v1_router.router, dependencies=NUR_ERWACHSENE)
 app.include_router(v1_router.public_router)
+# Moonfin's built-in request client speaks Seerr.  This adapter has its own
+# cookie guard on every protected route and delegates policy decisions to the
+# same Nexview handlers as the native API.
+app.include_router(seerr_compat_router.router)
 app.include_router(about_router.router, dependencies=NUR_ERWACHSENE)
 app.include_router(details_router.router, dependencies=NUR_ERWACHSENE)
 app.include_router(calendar_router.router, dependencies=NUR_ERWACHSENE)

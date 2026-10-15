@@ -26,11 +26,14 @@ jobs:
     name: Copy to Docker Hub
     runs-on: ubuntu-latest
     # After the build only for a green release tag, never for main or a pull request.
+    # This workflow belongs to the canonical project. Forks publish their own
+    # GHCR image and must never attempt to write DerKezorm's Docker Hub account.
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.event == 'push' &&
-       startsWith(github.event.workflow_run.head_branch, 'v'))
+      github.repository == 'DerKezorm/nexview' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push' &&
+        startsWith(github.event.workflow_run.head_branch, 'v')))
     env:
       SOURCE: ghcr.io/derkezorm/nexview
       TARGET: docker.io/derkezorm/nexview

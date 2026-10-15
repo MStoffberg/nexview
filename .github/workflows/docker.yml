@@ -198,15 +198,16 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          # "latest" haengt bewusst am Tag, nicht am Branch: wer in seiner
-          # compose-Datei "latest" stehen hat, bekommt beim naechsten "pull"
-          # eine veroeffentlichte Version - und nicht den Zwischenstand von
-          # gerade eben. Der aktuelle Entwicklungsstand liegt unter "main".
+          # The fork's main branch is the deployed StoffCore release line, so a
+          # green main build publishes both stable aliases. Version tags retain
+          # their normal semver aliases and also refresh latest.
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=raw,value=stoffcore,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') }}
+            type=sha
 
       - name: Bauen und veröffentlichen
         uses: docker/build-push-action@v6

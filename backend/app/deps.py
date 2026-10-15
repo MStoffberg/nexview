@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from . import meldungen
 from .db import get_db
 from .models import ApiKey, User
-from .security import decode_token
+from .security import TokenType, decode_token
 from .services import api_schluessel, logs, sitzung
 
 _bearer = HTTPBearer(auto_error=False)
@@ -39,7 +39,32 @@ def get_current_user(
     if api_schluessel.sieht_aus_wie_schluessel(credentials.credentials):
         return _mit_schluessel(request, credentials.credentials, db, unauthorized)
 
-    inhalt = decode_token(credentials.credentials, "access")
+    return user_from_token(
+        request, credentials.credentials, db, token_type="access", unauthorized=unauthorized
+    )
+
+
+def user_from_token(
+    request: Request,
+    token: str,
+    db: Session,
+    *,
+    token_type: TokenType = "access",
+    unauthorized: HTTPException | None = None,
+) -> User:
+    """Resolve a signed Nexview session token through the common account guard.
+
+    The normal API calls this with an access token.  The Moonfin compatibility
+    adapter calls it with its HttpOnly refresh-token cookie, so a stored Seerr
+    session lasts as long as Nexview's configured browser session without
+    weakening password-change or logout invalidation.
+    """
+    unauthorized = unauthorized or HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=meldungen.meldung("not_signed_in", "Nicht angemeldet."),
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    inhalt = decode_token(token, token_type)
     if inhalt is None:
         raise unauthorized
 
@@ -55,17 +80,11 @@ def get_current_user(
     if not user.is_active:
         raise unauthorized
 
-    # Ein Token, das aelter ist als der letzte Passwortwechsel, gilt nicht
-    # mehr - siehe ``sitzung.gilt_noch``. Kostet nichts: Der Benutzer ist
-    # gerade geladen.
     if not sitzung.gilt_noch(inhalt, user):
         raise unauthorized
-    # Und eines, dessen Sitzung abgemeldet wurde, auch nicht. Sonst liefe das
-    # Zugangs-Token nach dem Abmelden noch bis zu dreissig Minuten weiter.
     if abgemeldet:
         raise unauthorized
 
-    # Ab hier steht in jeder Protokollzeile dieser Anfrage, wer sie gestellt hat.
     logs.set_actor(user.username)
     return user
 

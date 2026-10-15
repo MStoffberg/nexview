@@ -856,6 +856,13 @@ administrator sets only the address and the role; the invitee picks their own us
 display name and password through the link in the mail. Nobody else learns that
 password, not even the administrator.
 
+### Moonfin compatibility in this fork
+
+The StoffCore fork exposes a policy-preserving subset of Seerr's `/api/v1`
+contract so Moonfin can search, browse and submit requests without replacing
+Nexview's native API. Deployment, supported endpoints and limitations are
+recorded in [docs/moonfin-compat.md](docs/moonfin-compat.md).
+
 ### Before you push
 
 One check deliberately runs *before* the push rather than in CI: it searches every

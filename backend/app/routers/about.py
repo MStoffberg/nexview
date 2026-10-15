@@ -30,7 +30,9 @@ class AboutInfo(BaseModel):
 def _basis() -> AboutInfo:
     return AboutInfo(
         version=__version__,
-        repo_url=updates.REPO_URL,
+        # Network users need the corresponding modified source, not only the
+        # upstream project. Update checks and upstream credit remain unchanged.
+        repo_url="https://github.com/MStoffberg/nexview",
         release_url=updates.RELEASES_URL,
     )
 

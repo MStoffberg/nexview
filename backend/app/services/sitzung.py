@@ -130,7 +130,13 @@ cookie_secure = _secure
 
 
 def starten(
-    response: Response, request: Request, user: User, *, fortsetzen: str | None = None
+    response: Response,
+    request: Request,
+    user: User,
+    *,
+    fortsetzen: str | None = None,
+    cookie_name: str = COOKIE_NAME,
+    cookie_path: str | None = None,
 ) -> TokenPair:
     """Eine Sitzung beginnen: Cookie setzen, Zugangs-Token zurueckgeben.
 
@@ -144,10 +150,10 @@ def starten(
     """
     kennung = fortsetzen or neue_sitzung()
     response.set_cookie(
-        COOKIE_NAME,
+        cookie_name,
         create_refresh_token(user.id, kennung),
         max_age=get_settings().refresh_token_days * 24 * 60 * 60,
-        path=cookie_pfad(),
+        path=cookie_path or cookie_pfad(),
         httponly=True,
         samesite="lax",
         secure=_secure(request),
@@ -158,7 +164,14 @@ def starten(
     )
 
 
-def beenden(response: Response, request: Request, db: Session) -> None:
+def beenden(
+    response: Response,
+    request: Request,
+    db: Session,
+    *,
+    cookie_name: str = COOKIE_NAME,
+    cookie_path: str | None = None,
+) -> None:
     """Die Sitzung dieses Browsers beenden - auf dem Server und im Browser.
 
     Beendet wird, was das Cookie nennt, und zusaetzlich, was ein mitgeschicktes
@@ -178,7 +191,7 @@ def beenden(response: Response, request: Request, db: Session) -> None:
     # Das Cookie zuerst: Bringt eine Anfrage beides fuer dieselbe Sitzung mit,
     # zaehlt der Ablauf des Erneuerungs-Tokens.
     kandidaten: list[tuple[TokenInhalt | None, bool]] = []
-    roh = gelesen(request)
+    roh = gelesen(request, cookie_name)
     if roh:
         kandidaten.append((decode_token(roh, "refresh"), True))
     kopf = request.headers.get("authorization", "")
@@ -221,17 +234,17 @@ def beenden(response: Response, request: Request, db: Session) -> None:
         db.commit()
 
     response.delete_cookie(
-        COOKIE_NAME,
-        path=cookie_pfad(),
+        cookie_name,
+        path=cookie_path or cookie_pfad(),
         httponly=True,
         samesite="lax",
         secure=_secure(request),
     )
 
 
-def gelesen(request: Request) -> str | None:
-    """Das Erneuerungs-Token aus dem Cookie - oder ``None``."""
-    return request.cookies.get(COOKIE_NAME)
+def gelesen(request: Request, cookie_name: str = COOKIE_NAME) -> str | None:
+    """Das benannte Erneuerungs-Token aus dem Cookie - oder ``None``."""
+    return request.cookies.get(cookie_name)
 
 
 def beendet_spalte(inhalt: TokenInhalt):

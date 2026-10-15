@@ -27,10 +27,17 @@ from fastapi.testclient import TestClient
 
 from app.deps import require_admin, require_adult, require_approver, require_child
 from app.main import app
+from app.routers.seerr_compat import require_compat_adult
 
 from .conftest import auth_headers, create_user
 
-WACHEN = {require_adult, require_admin, require_approver, require_child}
+WACHEN = {
+    require_adult,
+    require_admin,
+    require_approver,
+    require_child,
+    require_compat_adult,
+}
 
 # Pfade, die ein Kinderkonto erreichen darf - oder die gar keine Anmeldung
 # verlangen (Einrichtung, Einladungslinks, Bilder).
@@ -56,6 +63,15 @@ KINDER_ERLAUBT = {
     # Frage, ob Nexview laeuft. Alles andere unter /api/v1 haengt an
     # NUR_ERWACHSENE - siehe main.py.
     "/api/v1/health",
+    # Moonfin's compatibility handshake and media-server sign-in happen before
+    # a compatibility session exists. The login path authenticates directly
+    # against the configured media server; child profiles have no server-side
+    # counterpart and every post-login route uses require_compat_adult.
+    "/api/v1/status",
+    "/api/v1/settings/public",
+    "/api/v1/auth/jellyfin",
+    # Logging out only removes the caller's compatibility cookie.
+    "/api/v1/auth/logout",
     "/api/setup/sicherung/pruefen",
     "/api/setup/sicherung/einspielen",
     # Der Umzug aus einer laufenden Seerr-Installation. Dieselbe Einordnung
