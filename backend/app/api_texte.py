@@ -2706,6 +2706,123 @@ TEXTE: dict[str, tuple[str, str]] = {
             'are done.'
         ),
     ),
+    # --- Moonfin / Seerr compatibility -------------------------------------
+    'GET /api/v1/status': (
+        'Read Moonfin compatibility status',
+        'Public Seerr-shaped status response used when Moonfin validates the server URL.',
+    ),
+    'GET /api/v1/settings/public': (
+        'Read public Moonfin settings',
+        'Public Seerr-shaped instance name, initialization state and 4K capabilities.',
+    ),
+    'POST /api/v1/auth/jellyfin': (
+        'Sign in from Moonfin with Jellyfin',
+        'Validates the Jellyfin credentials through Nexview and creates a scoped, HTTP-only compatibility session.',
+    ),
+    'GET /api/v1/auth/me': (
+        'Read the Moonfin account',
+        'Returns the current adult Nexview account with conservative Seerr permission flags.',
+    ),
+    'POST /api/v1/auth/logout': (
+        'End the Moonfin session',
+        'Removes the compatibility session cookie.',
+    ),
+    'GET /api/v1/search': (
+        'Search movies and series for Moonfin',
+        'Runs Nexview movie and series searches and combines their policy-filtered results.',
+    ),
+    'GET /api/v1/discover/movies': (
+        'Discover movies for Moonfin',
+        'Translates Seerr filters into Nexview discovery while retaining blocklist and account policy.',
+    ),
+    'GET /api/v1/discover/tv': (
+        'Discover series for Moonfin',
+        'Translates Seerr filters into Nexview discovery while retaining blocklist and account policy.',
+    ),
+    'GET /api/v1/discover/trending': (
+        'Discover trending titles for Moonfin',
+        'Combines policy-filtered popular movie and series results.',
+    ),
+    'GET /api/v1/discover/movies/top': (
+        'Discover top movies for Moonfin',
+        'Returns policy-filtered movies ordered by rating.',
+    ),
+    'GET /api/v1/discover/tv/top': (
+        'Discover top series for Moonfin',
+        'Returns policy-filtered series ordered by rating.',
+    ),
+    'GET /api/v1/discover/movies/upcoming': (
+        'Discover upcoming movies for Moonfin',
+        'Returns policy-filtered upcoming movies.',
+    ),
+    'GET /api/v1/discover/tv/upcoming': (
+        'Discover upcoming series for Moonfin',
+        'Returns policy-filtered upcoming series.',
+    ),
+    'GET /api/v1/movie/{tmdb_id}': (
+        'Read movie details for Moonfin',
+        'Returns Nexview movie details translated to the Seerr shape.',
+    ),
+    'GET /api/v1/tv/{tmdb_id}': (
+        'Read series details for Moonfin',
+        'Returns Nexview series details and seasons translated to the Seerr shape.',
+    ),
+    'GET /api/v1/movie/{tmdb_id}/recommendations': (
+        'Recommend movies for Moonfin',
+        'Returns Nexview policy-filtered recommendations in a Seerr page.',
+    ),
+    'GET /api/v1/movie/{tmdb_id}/similar': (
+        'Find similar movies for Moonfin',
+        'Uses the same policy-filtered recommendation pool as Nexview.',
+    ),
+    'GET /api/v1/tv/{tmdb_id}/recommendations': (
+        'Recommend series for Moonfin',
+        'Returns Nexview policy-filtered recommendations in a Seerr page.',
+    ),
+    'GET /api/v1/tv/{tmdb_id}/similar': (
+        'Find similar series for Moonfin',
+        'Uses the same policy-filtered recommendation pool as Nexview.',
+    ),
+    'GET /api/v1/service/radarr': (
+        'List movie request targets for Moonfin',
+        'Represents Nexview movie versions as Seerr-compatible standard and 4K services.',
+    ),
+    'GET /api/v1/service/sonarr': (
+        'List series request targets for Moonfin',
+        'Represents Nexview series versions as Seerr-compatible standard and 4K services.',
+    ),
+    'GET /api/v1/service/radarr/{server_id}': (
+        'Read a movie request target for Moonfin',
+        'Returns the selected compatibility service and its synthetic profile.',
+    ),
+    'GET /api/v1/service/sonarr/{server_id}': (
+        'Read a series request target for Moonfin',
+        'Returns the selected compatibility service and its synthetic profile.',
+    ),
+    'POST /api/v1/request': (
+        'Create a request from Moonfin',
+        'Maps standard or 4K Seerr requests into Nexview, where native quota and approval policy is enforced.',
+    ),
+    'GET /api/v1/request': (
+        'List requests for Moonfin',
+        'Returns only the current account\'s requests in a Seerr-compatible page.',
+    ),
+    'GET /api/v1/request/count': (
+        'Count requests for Moonfin',
+        'Counts only requests visible to the current account.',
+    ),
+    'GET /api/v1/request/{request_id}': (
+        'Read a request for Moonfin',
+        'Returns an own request, or a request visible to a Nexview approver.',
+    ),
+    'DELETE /api/v1/request/{request_id}': (
+        'Cancel a request from Moonfin',
+        'Cancels an own request through Nexview\'s native cancellation service.',
+    ),
+    'GET /api/v1/user/{user_id}/quota': (
+        'Read request quota for Moonfin',
+        'Returns the current account\'s Nexview movie and series quotas in Seerr form.',
+    ),
 }
 
 

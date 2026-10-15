@@ -717,7 +717,11 @@ NUR_EIGENES_KONTO: dict[tuple[str, str], str] = {
         "wer das Passwort hat, ist das Konto."
     ),
     ("auth.py", "update_me"): "Das eigene Profil - Anzeigename, Darstellung, Region.",
-    ("mediaserver.py", "login_password"): "last_login_at beim Anmelden, wie auth.login.",
+    ("mediaserver.py", "passwort_benutzer"): (
+        "Setzt last_login_at nur an dem Konto, dessen Medienserver-Zugangsdaten "
+        "unmittelbar davor erfolgreich geprueft wurden; weder Pfad noch Rumpf "
+        "koennen ein fremdes Zielkonto benennen."
+    ),
     ("mediaserver.py", "login_poll"): "last_login_at beim Anmelden, wie auth.login.",
     ("oidc.py", "_zurueck"): "last_login_at beim Anmelden ueber einen Anbieter, wie auth.login.",
     ("onboarding.py", "change_pending_email"): (

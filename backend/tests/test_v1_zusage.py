@@ -18,6 +18,7 @@ import re
 from pathlib import Path
 
 from app.main import app
+from app.routers.seerr_compat import SEERR_ZUGESAGT
 from app.routers.v1 import ZUGESAGT
 
 #: Die festgehaltene Form der Antworten. Liegt als Datei daneben, damit eine
@@ -36,7 +37,7 @@ def test_die_flaeche_ist_genau_die_zugesagte() -> None:
     geben wollte; einer zu wenig ist ein gebrochenes.
     """
     da = _v1_pfade()
-    zugesagt = set(ZUGESAGT)
+    zugesagt = set(ZUGESAGT) | set(SEERR_ZUGESAGT)
 
     assert da - zugesagt == set(), (
         f"Unter /api/v1 liegt etwas, das nicht in ZUGESAGT steht: {sorted(da - zugesagt)}. "
